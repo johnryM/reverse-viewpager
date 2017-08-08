@@ -2,6 +2,7 @@ package com.skeeno.android.reverseviewpagerapp;
 
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -17,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private TabLayout mTabLayout;
+
+    private final int LIMIT = 10;
+    private ArrayList<PlaceholderFragment> mList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,24 +48,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+        setupList();
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setCurrentItem(mViewPager.getAdapter().getCount() - 1, false);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        mTabLayout = (TabLayout) findViewById(R.id.tablayout);
+        mTabLayout.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        mTabLayout.setupWithViewPager(mViewPager);
+
 
     }
 
@@ -118,6 +124,10 @@ public class MainActivity extends AppCompatActivity {
             textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
+
+        public String getPageTitle () {
+            return "PAGE " + getArguments().getInt(ARG_SECTION_NUMBER, -1);
+        }
     }
 
     /**
@@ -133,43 +143,26 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            position = 3 - position - 1;
-            return PlaceholderFragment.newInstance(position);
+            position = getCount() - position - 1;
+            return mList.get(position);
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return LIMIT;
         }
-
-//        @Override
-//        public CharSequence getPageTitle(int position) {
-//            if (mIsRtlOrientation && mTabs != null && mTabs.length > 0) {
-//                return mTabs[mTabs.length - position - 1].getTitle();
-//            } else {
-//                return mTabs[position].getTitle();
-//            }
-//        }
-
-
-//        @Override
-//        public Fragment getItem(int position) {
-//            // getItem is called to instantiate the fragment for the given page.
-//            // Return a PlaceholderFragment (defined as a static inner class below).
-//            return PlaceholderFragment.newInstance(position + 1);
-//        }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "SECTION 1";
-                case 1:
-                    return "SECTION 2";
-                case 2:
-                    return "SECTION 3";
-            }
-            return null;
+            position = getCount() - position - 1;
+            return mList.get(position).getPageTitle();
         }
     }
+
+    private void setupList() {
+        for (int i = 0; i < LIMIT; i++) {
+            mList.add(PlaceholderFragment.newInstance(i));
+        }
+    }
+
 }
